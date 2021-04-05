@@ -10,6 +10,8 @@
         $scope.dishes = '';
         $scope.message = '';
         $scope.checked = false;
+        $scope.good=false;
+        $scope.bad=false;
 
         $scope.checkLunch = function() {
             if ($scope.dishes.trim().length === 0) {
@@ -24,8 +26,11 @@
 
                 if (arrayDishesWithoutEmptys.length <= 3) {
                     $scope.message = 'Enjoy!';
+                    $scope.good=true;
+
                 } else {
                     $scope.message = 'Too much!';
+                    $scope.bad=true;
                 }
             }
         };
