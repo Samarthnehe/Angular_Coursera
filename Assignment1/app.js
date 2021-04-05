@@ -27,10 +27,12 @@
                 if (arrayDishesWithoutEmptys.length <= 3) {
                     $scope.message = 'Enjoy!';
                     $scope.good=true;
+                    $scope.bad=false;
 
                 } else {
                     $scope.message = 'Too much!';
                     $scope.bad=true;
+                    $scope.good=false;
                 }
             }
         };
