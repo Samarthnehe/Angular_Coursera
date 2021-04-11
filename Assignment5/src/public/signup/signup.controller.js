@@ -1,38 +1,44 @@
 (function() {
-    'use strict';
+  'use strict';
 
-    var signupController = function(MenuService) {
-        var vm = this;
+  angular
+    .module('public')
+    .controller('SignUpController', SignUpController);
 
-        vm.user = {};
-        vm.favoriteDish = {};
+  SignUpController.$inject = ['$scope', 'MenuService', 'SessionStorage'];
 
-        vm.showError = false;       // When this value is true error about the favorite dish wiil be shown
-        vm.showMessage = false;     // When this value is true message about successfull signup will be shown
+  function SignUpController($scope, MenuService, SessionStorage) {
+    var signUpCtrl = this;
 
-        vm.signup = function(form) {
-            vm.showError = false;
-            vm.showMessage = false;
-            // If the form is not valid don't submit
-            if(form.$invalid) {
-                console.log('The form is not valid');
-                return;
-            }
+    signUpCtrl.user = {};
+    signUpCtrl.userInfoSaved = false;
+    signUpCtrl.validMenuNumber = false;
 
-            MenuService.getFavoriteDish(vm.user.favoriteDish).then(function(response) {
-                vm.user.favoriteDishDetails = response.data;
-                console.log(vm.favoriteDish);
-                MenuService.saveUser(vm.user);
-                vm.showMessage = true;
-            }, function(error) {
-                console.log(error);
-                vm.showError = true;
-            });
+    signUpCtrl.checkMenuNumber = function() {
+      var shortName = signUpCtrl.user.menuNumber ? signUpCtrl.user.menuNumber.toUpperCase() : '';
+      MenuService.getMenuItemsByShortName(shortName)
+        .then(function(response) {
+          signUpCtrl.user.menuItem = response;
+          signUpCtrl.validMenuNumber = true;
+        })
+        .catch(function(response) {
+          signUpCtrl.validMenuNumber = false;
+        });
+    }
 
+    signUpCtrl.submitForm = function() {
+      if ($scope.signUpForm.$valid && signUpCtrl.validMenuNumber) {
+        delete signUpCtrl.user.menuNumber;
+        SessionStorage.storeObject('userinfo', signUpCtrl.user);
+        signUpCtrl.userInfoSaved = true;
+        $scope.signUpForm.$setPristine();
+        $scope.signUpForm.$setUntouched();
+        signUpCtrl.user = {};
+      } else {
+        if (signUpCtrl.userInfoSaved) {
+          signUpCtrl.userInfoSaved = false;
         }
-    };
-
-
-    signupController.$inject = ['MenuService'];
-    angular.module('public').controller('SignupController', signupController);
+      }
+    }
+  }
 })();

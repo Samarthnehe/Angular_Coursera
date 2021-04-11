@@ -1,13 +1,17 @@
-(function () {
-"use strict";
+(function() {
+  'use strict';
 
-angular.module('public')
-.controller('MyInfoController', MyInfoController);
+  angular
+    .module('public')
+    .controller('MyInfoController', MyInfoController);
 
-MyInfoController.$inject = ['userInfo'];
-function MyInfoController(userInfo) {
-  var $myInfoCtrl = this;
-  $myInfoCtrl.user = userInfo;
-}
+  MyInfoController.$inject = ['SessionStorage', 'ApiPath'];
 
+  function MyInfoController(SessionStorage, ApiPath) {
+    var myInfoCtrl = this;
+    
+    myInfoCtrl.basePath = ApiPath;
+    myInfoCtrl.user = SessionStorage.getObject('userinfo', '{}');
+    myInfoCtrl.notSignedUp = angular.equals({}, myInfoCtrl.user);
+  }
 })();
