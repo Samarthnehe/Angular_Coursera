@@ -10,15 +10,6 @@ function MenuService($http, ApiPath) {
   var service = this;
   service.user = {};
 
-  service.saveUser = function(user) {
-    service.user = angular.copy(user);
-    console.log(service.user);
-  }
-
-  service.getUser = function() {
-    return service.user;
-  }
-  
   service.getCategories = function () {
     return $http.get(ApiPath + '/categories.json').then(function (response) {
       return response.data;
@@ -37,12 +28,17 @@ function MenuService($http, ApiPath) {
     });
   };
 
-  service.getFavoriteDish = function(short_name) {
-    return $http.get(ApiPath + '/menu_items/' + short_name + '.json');
-  }
+  service.setUserProfile = function (user) {
+    service.user = user;
+  };
 
+  service.getUserProfile = function () {
+    return service.user;
+  };
+
+  service.getFavoriteDish = function (shortName) {
+    return $http.get(ApiPath +'/menu_items/'+ shortName +'.json');
+  };
+  
 }
-
-
-
 })();
