@@ -1,44 +1,43 @@
 (function() {
-  'use strict';
+    'use strict';
 
-  angular
-    .module('public')
-    .controller('SignUpController', SignUpController);
+    angular.module('public')
+        .controller('SignUpController', SignUpController);
 
-  SignUpController.$inject = ['$scope', 'MenuService', 'SessionStorage'];
+    SignUpController.$inject = ['MenuService'];
+    function SignUpController(MenuService) {
+        let signup = this;
+        signup.firstName = '';
+        signup.lastName = '';
+        signup.email = '';
+        signup.phone = '';
+        signup.shortName = '';
+        signup.showError = false;
+        signup.showMessage = false;
 
-  function SignUpController($scope, MenuService, SessionStorage) {
-    var signUpCtrl = this;
-
-    signUpCtrl.user = {};
-    signUpCtrl.userInfoSaved = false;
-    signUpCtrl.validMenuNumber = false;
-
-    signUpCtrl.checkMenuNumber = function() {
-      var shortName = signUpCtrl.user.menuNumber ? signUpCtrl.user.menuNumber.toUpperCase() : '';
-      MenuService.getMenuItemsByShortName(shortName)
-        .then(function(response) {
-          signUpCtrl.user.menuItem = response;
-          signUpCtrl.validMenuNumber = true;
-        })
-        .catch(function(response) {
-          signUpCtrl.validMenuNumber = false;
-        });
-    }
-
-    signUpCtrl.submitForm = function() {
-      if ($scope.signUpForm.$valid && signUpCtrl.validMenuNumber) {
-        delete signUpCtrl.user.menuNumber;
-        SessionStorage.storeObject('userinfo', signUpCtrl.user);
-        signUpCtrl.userInfoSaved = true;
-        $scope.signUpForm.$setPristine();
-        $scope.signUpForm.$setUntouched();
-        signUpCtrl.user = {};
-      } else {
-        if (signUpCtrl.userInfoSaved) {
-          signUpCtrl.userInfoSaved = false;
+        signup.submit = function(form) {
+            signup.showError = false;
+            signup.showMessage = false;
+            if(form.$invalid) {
+                console.log('The form is not valid');
+                return;
+            }
+            MenuService.getMenuItem(signup.shortName)
+                .then(response => {
+                    const favoriteItemDetails = response.data;
+                    MenuService.setUser({
+                        firstName: signup.firstName,
+                        lastName: signup.lastName,
+                        email: signup.email,
+                        phone: signup.phone,
+                        shortName: signup.shortName,
+                        favoriteItemDetails: favoriteItemDetails
+                    });
+                    signup.showMessage = true;
+                })
+                .catch(error => {
+                    signup.showError = true;
+                })
         }
-      }
     }
-  }
-})();
+}());
